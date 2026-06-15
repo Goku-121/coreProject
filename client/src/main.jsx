@@ -1,16 +1,14 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import 'animate.css';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import "bootstrap/dist/css/bootstrap.min.css";
-import 'bootstrap-icons/font/bootstrap-icons.css';
-import "react-loading-skeleton/dist/skeleton.css";
-import './utility/axiosConfig'; // sets axios baseURL for production
+import React from 'react'
+import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
+import axios from 'axios'
 
-createRoot(document.getElementById('root')).render(
-  <StrictMode>
+
+const token = localStorage.getItem('token');
+if (token) {
+    axios.defaults.headers.common['token'] = token;
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(
     <App />
-  </StrictMode>,
 )

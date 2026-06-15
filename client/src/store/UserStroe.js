@@ -36,38 +36,46 @@ const UserStore = create((set) => ({
         }));
     },
 
-  LoginWithPasswordRequest: async (email, password) => {
+LoginWithPasswordRequest: async (email, password) => {
     set({ isFormSubmit: true });
     try {
         let res = await axios.post(`/api/v1/LoginWithPassword`, { email, password });
         if (res.data['status'] === "success") {
+            const token = res.data['token'];
+            Cookies.set('token', token);
+            localStorage.setItem('token', token);
+            localStorage.setItem('userEmail', email);
             Cookies.set('userEmail', email);
-            
-            localStorage.setItem('token', res.data.token);
-            Cookies.set('token', res.data.token);
+           
+            axios.defaults.headers.common['token'] = token;
         }
         set({ isFormSubmit: false });
         return res.data;
     } catch {
         set({ isFormSubmit: false });
-        return { status: "fail" };
+        return null;
     }
 },
-
-    UserLogoutRequest: async () => {
-        set({ isFormSubmit: true });
-        try {
-            await axios.get(`/api/v1/UserLogout`);
-        } catch (e) {
-            console.error("Error occurred while logging out:", e);
-        }
-        Cookies.remove('token');
+UserLogoutRequest: async () => {
+    set({ isFormSubmit: true });
+    try {
+        const token = localStorage.getItem('token') || Cookies.get('token');
+        let res = await axios.get(`/api/v1/UserLogout`, {
+            headers: { 'token': token }
+        });
         Cookies.remove('userEmail');
-        Cookies.remove('adminToken');
-        localStorage.removeItem('adminInfo');
+        Cookies.remove('token');
+        localStorage.removeItem('token');
+        localStorage.removeItem('userEmail');
+        
+        delete axios.defaults.headers.common['token'];
         set({ isFormSubmit: false });
-        return true;
-    },
+        return res.data['status'] === "success";
+    } catch {
+        set({ isFormSubmit: false });
+        return false;
+    }
+},
 
     // Profile
     ProfileForm: {
