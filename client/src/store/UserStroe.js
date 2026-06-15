@@ -3,7 +3,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 
 const UserStore = create((set) => ({
-    isLogin: () => !!Cookies.get('token'),
+    isLogin: () => !!Cookies.get('token') || !!localStorage.getItem('token'),
     getUserEmail: () => Cookies.get('userEmail') || "",
     isFormSubmit: false,
 
@@ -36,28 +36,31 @@ const UserStore = create((set) => ({
         }));
     },
 
-    LoginWithPasswordRequest: async (email, password) => {
-        set({ isFormSubmit: true });
-        try {
-            let res = await axios.post(`/api/v1/LoginWithPassword`, { email, password });
-            if (res.data['status'] === "success") {
-                Cookies.set('userEmail', email);
-                Cookies.remove('adminToken');
-                localStorage.removeItem('adminInfo');
-            }
-            set({ isFormSubmit: false });
-            return res.data;
-        } catch {
-            set({ isFormSubmit: false });
-            return { status: "fail" };
+  LoginWithPasswordRequest: async (email, password) => {
+    set({ isFormSubmit: true });
+    try {
+        let res = await axios.post(`/api/v1/LoginWithPassword`, { email, password });
+        if (res.data['status'] === "success") {
+            Cookies.set('userEmail', email);
+            
+            localStorage.setItem('token', res.data.token);
+            Cookies.set('token', res.data.token);
         }
-    },
+        set({ isFormSubmit: false });
+        return res.data;
+    } catch {
+        set({ isFormSubmit: false });
+        return { status: "fail" };
+    }
+},
 
     UserLogoutRequest: async () => {
         set({ isFormSubmit: true });
         try {
             await axios.get(`/api/v1/UserLogout`);
-        } catch {}
+        } catch (e) {
+            console.error("Error occurred while logging out:", e);
+        }
         Cookies.remove('token');
         Cookies.remove('userEmail');
         Cookies.remove('adminToken');
