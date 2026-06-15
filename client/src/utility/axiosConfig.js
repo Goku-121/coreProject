@@ -1,9 +1,15 @@
-import axios from 'axios';
+import axios from "axios";
 
-// In production (Vercel), VITE_API_URL points to Render backend
-// In dev, vite proxy handles /api/* → localhost:5020
-if (import.meta.env.VITE_API_URL) {
-    axios.defaults.baseURL = import.meta.env.VITE_API_URL;
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5020";
+
+if (API_BASE) {
+    axios.defaults.baseURL = API_BASE;
 }
+
+axios.interceptors.request.use((config) => {
+    const token = localStorage.getItem('token');
+    if (token) config.headers['token'] = token;
+    return config;
+});
 
 export default axios;
