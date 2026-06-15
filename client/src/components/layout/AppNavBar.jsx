@@ -20,11 +20,12 @@ const AppNavBar = () => {
     const token = Cookies.get('token') || localStorage.getItem('token');
 
     useEffect(() => {
-        if (token) {
+        const currentToken = Cookies.get('token') || localStorage.getItem('token');
+        if (currentToken) {
             CartListRequest();
             WishListRequest();
         }
-    }, [token]);
+    }, []);
 
     const wishCount = WishCount || WishList?.length || 0;
 
