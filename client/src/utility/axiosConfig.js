@@ -1,4 +1,5 @@
 import axios from "axios";
+import Cookies from "js-cookie";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5020";
 
@@ -7,7 +8,7 @@ if (API_BASE) {
 }
 
 axios.interceptors.request.use((config) => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token') || Cookies.get('token');
     if (token) config.headers['token'] = token;
     return config;
 });
