@@ -3,68 +3,116 @@ import AdminLayout from "../../components/layout/AdminLayout";
 import AdminStore from "../../store/AdminStore";
 import toast from "react-hot-toast";
 
+// ✅ Component এর বাইরে রাখা হয়েছে — re-render এ নতুন হবে না
+const ImageUploadField = ({ field, label, formData, onChange, uploading, onImageUpload }) => (
+    <div className="mb-1">
+        {label && <label className="form-label">{label}</label>}
+
+        {formData[field] && (
+            <div className="mb-2 position-relative" style={{ width: "100px" }}>
+                <img
+                    src={formData[field]}
+                    alt="preview"
+                    style={{ width: "100px", height: "100px", objectFit: "cover", borderRadius: "8px", border: "1px solid #dee2e6" }}
+                />
+                <button
+                    onClick={() => onChange(field, "")}
+                    style={{
+                        position: "absolute", top: "-6px", right: "-6px",
+                        background: "#dc3545", border: "none", borderRadius: "50%",
+                        color: "#fff", width: "20px", height: "20px",
+                        fontSize: "11px", cursor: "pointer", lineHeight: 1
+                    }}
+                >✕</button>
+            </div>
+        )}
+
+        {!formData[field] && (
+            <label
+                style={{
+                    display: "flex", flexDirection: "column", alignItems: "center",
+                    justifyContent: "center", border: "2px dashed #dee2e6",
+                    borderRadius: "8px", padding: "14px 10px", cursor: "pointer",
+                    background: "#f8f9fa", minHeight: "80px"
+                }}
+            >
+                {uploading[field] ? (
+                    <span className="spinner-border spinner-border-sm text-secondary"></span>
+                ) : (
+                    <>
+                        <i className="bi bi-cloud-upload fs-4 text-muted"></i>
+                        <span className="text-muted" style={{ fontSize: "11px", marginTop: "4px" }}>
+                            Click or drag image
+                        </span>
+                    </>
+                )}
+                <input
+                    type="file"
+                    accept="image/*"
+                    style={{ display: "none" }}
+                    onChange={(e) => onImageUpload(field, e.target.files[0])}
+                    disabled={uploading[field]}
+                />
+            </label>
+        )}
+
+        <input
+            className="form-control form-control-sm mt-1"
+            placeholder="Or paste image URL"
+            value={formData[field]}
+            onChange={(e) => onChange(field, e.target.value)}
+        />
+    </div>
+);
+
+const emptyForm = {
+    title: "", shortDescription: "", price: "", discountPrice: "",
+    discount: false, image: "", star: 0, stock: true,
+    remark: "", brandId: "", categoryId: "",
+    img1: "", img2: "", img3: "", img4: "",
+    img5: "", img6: "", img7: "", img8: "",
+    description: "", color: "", size: ""
+};
+
 const AdminProducts = () => {
     const {
         ProductList, AdminProductListRequest, AdminDeleteProductRequest,
         AdminCreateProductRequest, BrandList, CategoryList,
         AdminBrandListRequest, AdminCategoryListRequest,
-        AdminCreateProductDetailsRequest,
-        UploadImageRequest
+        AdminCreateProductDetailsRequest, UploadImageRequest
     } = AdminStore();
 
     const [showModal, setShowModal] = useState(false);
     const [loading, setLoading] = useState(false);
-
-    const [formData, setFormData] = useState({
-        title: "", shortDescription: "", price: "", discountPrice: "",
-        discount: false, image: "", star: 0, stock: true,
-        remark: "", brandId: "", categoryId: "",
-        img1: "", img2: "", img3: "", img4: "",
-        img5: "", img6: "", img7: "", img8: "",
-        description: "", color: "", size: ""
-    });
-
+    const [formData, setFormData] = useState(emptyForm);
     const [uploading, setUploading] = useState({});
 
     useEffect(() => {
-        const loadData = async () => {
+        (async () => {
             await AdminProductListRequest();
             await AdminBrandListRequest();
             await AdminCategoryListRequest();
-        };
-        loadData();
+        })();
     }, []);
 
     const onDelete = async (id) => {
         if (!window.confirm("Are you sure you want to delete this product?")) return;
         const res = await AdminDeleteProductRequest(id);
-        if (res) {
-            await AdminProductListRequest();
-        }
+        if (res) await AdminProductListRequest();
     };
 
     const onChange = (name, value) => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    // ✅ Fix: axios/base64 সরিয়ে store এর UploadImageRequest use করছি
     const onImageUpload = async (field, file) => {
         if (!file) return;
-
-        if (!file.type.startsWith('image/')) {
-            toast.error("Please select a valid image file");
-            return;
-        }
-
-        if (file.size > 5 * 1024 * 1024) {
-            toast.error("Image size must be less than 5MB");
-            return;
-        }
+        if (!file.type.startsWith('image/')) { toast.error("Please select a valid image file"); return; }
+        if (file.size > 5 * 1024 * 1024) { toast.error("Image size must be less than 5MB"); return; }
 
         setUploading(prev => ({ ...prev, [field]: true }));
-
         try {
-            const url = await UploadImageRequest(file); // ✅ FormData দিয়ে পাঠাবে
+            const url = await UploadImageRequest(file);
             if (url) {
                 onChange(field, url);
                 toast.success("Image uploaded!");
@@ -77,67 +125,6 @@ const AdminProducts = () => {
             setUploading(prev => ({ ...prev, [field]: false }));
         }
     };
-
-    const ImageUploadField = ({ field, label }) => (
-        <div className="mb-1">
-            {label && <label className="form-label">{label}</label>}
-
-            {formData[field] && (
-                <div className="mb-2 position-relative" style={{ width: "100px" }}>
-                    <img
-                        src={formData[field]}
-                        alt="preview"
-                        style={{ width: "100px", height: "100px", objectFit: "cover", borderRadius: "8px", border: "1px solid #dee2e6" }}
-                    />
-                    <button
-                        onClick={() => onChange(field, "")}
-                        style={{
-                            position: "absolute", top: "-6px", right: "-6px",
-                            background: "#dc3545", border: "none", borderRadius: "50%",
-                            color: "#fff", width: "20px", height: "20px",
-                            fontSize: "11px", cursor: "pointer", lineHeight: 1
-                        }}
-                    >✕</button>
-                </div>
-            )}
-
-            {!formData[field] && (
-                <label
-                    style={{
-                        display: "flex", flexDirection: "column", alignItems: "center",
-                        justifyContent: "center", border: "2px dashed #dee2e6",
-                        borderRadius: "8px", padding: "14px 10px", cursor: "pointer",
-                        background: "#f8f9fa", minHeight: "80px"
-                    }}
-                >
-                    {uploading[field] ? (
-                        <span className="spinner-border spinner-border-sm text-secondary"></span>
-                    ) : (
-                        <>
-                            <i className="bi bi-cloud-upload fs-4 text-muted"></i>
-                            <span className="text-muted" style={{ fontSize: "11px", marginTop: "4px" }}>
-                                Click or drag image
-                            </span>
-                        </>
-                    )}
-                    <input
-                        type="file"
-                        accept="image/*"
-                        style={{ display: "none" }}
-                        onChange={(e) => onImageUpload(field, e.target.files[0])}
-                        disabled={uploading[field]}
-                    />
-                </label>
-            )}
-
-            <input
-                className="form-control form-control-sm mt-1"
-                placeholder="Or paste image URL"
-                value={formData[field]}
-                onChange={(e) => onChange(field, e.target.value)}
-            />
-        </div>
-    );
 
     const onSubmit = async () => {
         if (!formData.title || !formData.price || !formData.image ||
@@ -163,10 +150,24 @@ const AdminProducts = () => {
                 categoryId: formData.categoryId,
             });
 
-            if (!productRes) { toast.error("Failed to create product"); return; }
+            if (!productRes) {
+                toast.error("Failed to create product");
+                return;
+            }
 
-            const productId = productRes?._id || productRes?.data?._id || productRes?.id;
-            if (!productId) { toast.error("Product created but ID not returned"); return; }
+            // ✅ সব possible structure থেকে _id বের করা
+            const productId =
+                productRes?._id ||
+                productRes?.data?._id ||
+                productRes?.id ||
+                productRes?.data?.id ||
+                productRes?.product?._id ||
+                productRes?.product?.id;
+
+            if (!productId) {
+                toast.error("Product created but ID not returned");
+                return;
+            }
 
             const detailsRes = await AdminCreateProductDetailsRequest({
                 productID: productId,
@@ -180,26 +181,23 @@ const AdminProducts = () => {
             });
 
             if (detailsRes) {
-                toast.success("Product created successfully!");
+                toast.success("✅ Product created successfully!");
                 setShowModal(false);
-                setFormData({
-                    title: "", shortDescription: "", price: "", discountPrice: "",
-                    discount: false, image: "", star: 0, stock: true,
-                    remark: "", brandId: "", categoryId: "",
-                    img1: "", img2: "", img3: "", img4: "",
-                    img5: "", img6: "", img7: "", img8: "",
-                    description: "", color: "", size: ""
-                });
+                setFormData(emptyForm);
                 await AdminProductListRequest();
             } else {
                 toast.error("Product created but failed to save details");
             }
-        } catch {
+        } catch (err) {
+            console.error("onSubmit error:", err);
             toast.error("Something went wrong. Please try again.");
         } finally {
             setLoading(false);
         }
     };
+
+    // shared props for ImageUploadField
+    const imgProps = { formData, onChange, uploading, onImageUpload };
 
     return (
         <AdminLayout>
@@ -285,7 +283,7 @@ const AdminProducts = () => {
                                     </div>
 
                                     <div className="col-12">
-                                        <ImageUploadField field="image" label="Featured Image *" />
+                                        <ImageUploadField field="image" label="Featured Image *" {...imgProps} />
                                     </div>
 
                                     <div className="col-md-6">
@@ -314,16 +312,16 @@ const AdminProducts = () => {
                                         <input className="form-control" placeholder="black, red, blue" value={formData.color} onChange={(e) => onChange("color", e.target.value)} />
                                     </div>
                                     <div className="col-md-6">
-    <label>Remark</label>
-    <select className="form-select" value={formData.remark} onChange={(e) => onChange("remark", e.target.value)}>
-        <option value="">Select Remark</option>
-        <option value="new">New</option>
-        <option value="trending">Trending</option>
-        <option value="popular">Popular</option>
-        <option value="top">Top</option>
-        <option value="special">Special</option>
-    </select>
-</div>
+                                        <label>Remark</label>
+                                        <select className="form-select" value={formData.remark} onChange={(e) => onChange("remark", e.target.value)}>
+                                            <option value="">Select Remark</option>
+                                            <option value="new">New</option>
+                                            <option value="trending">Trending</option>
+                                            <option value="popular">Popular</option>
+                                            <option value="top">Top</option>
+                                            <option value="special">Special</option>
+                                        </select>
+                                    </div>
                                     <div className="col-md-6">
                                         <label>Size</label>
                                         <input className="form-control" placeholder="5 inch, XL" value={formData.size} onChange={(e) => onChange("size", e.target.value)} />
@@ -334,7 +332,7 @@ const AdminProducts = () => {
                                         <div className="row g-3">
                                             {Array.from({ length: 8 }, (_, i) => (
                                                 <div className="col-md-3" key={i}>
-                                                    <ImageUploadField field={`img${i + 1}`} label={`Image ${i + 1}`} />
+                                                    <ImageUploadField field={`img${i + 1}`} label={`Image ${i + 1}`} {...imgProps} />
                                                 </div>
                                             ))}
                                         </div>
