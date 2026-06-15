@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import axios from "axios";
+import axios from "../utility/axiosConfig";
 import Cookies from "js-cookie";
 
 const UserStore = create((set) => ({

@@ -1,5 +1,6 @@
 import { create } from "zustand";
-import axios from "axios";
+import axios from "../utility/axiosConfig";
+
 import { unauthorized } from "../utility/utility.js";
 
 const CartStore = create((set) => ({

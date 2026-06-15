@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from "../utility/axiosConfig";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { unauthorized } from "../utility/utility";

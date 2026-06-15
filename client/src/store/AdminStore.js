@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import axios from "axios";
+import axios from "../utility/axiosConfig";
 import Cookies from "js-cookie";
 import toast from "react-hot-toast";
 
@@ -144,13 +144,15 @@ const AdminStore = create((set) => ({
         try {
             let res = await axios.get(`/api/v1/ProductBrandList`);
             if (res.data['status'] === "success") set({ BrandList: res.data['data'] });
-        } catch {}
+        } catch {(err)}
     },
     AdminCategoryListRequest: async () => {
         try {
             let res = await axios.get(`/api/v1/ProductCategoryList`);
             if (res.data['status'] === "success") set({ CategoryList: res.data['data'] });
-        } catch {}
+        } catch {
+(err) 
+        }
     },
 
     // Orders
