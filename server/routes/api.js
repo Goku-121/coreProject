@@ -10,7 +10,7 @@ const InvoiceController = require('../controller/InvoiceController');
 const FeaturesController = require('../controller/FeaturesController');
 const AdminController = require('../controller/AdminController');
 const AdminVerification = require('../middlewares/AdminVerification');
-const upload = require('../middlewares/upload');
+const upload = require('../middlewares/Upload');
 
 // Product
 router.get('/ProductBrandList', ProductController.ProductBrandList);
