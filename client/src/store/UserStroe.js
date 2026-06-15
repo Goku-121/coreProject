@@ -3,7 +3,7 @@ import axios from "../utility/axiosConfig";
 import Cookies from "js-cookie";
 
 const UserStore = create((set) => ({
-    isLogin: () => !!Cookies.get('token') || !!localStorage.getItem('token'),
+   isLogin: !!Cookies.get('token') || !!localStorage.getItem('token'),
     getUserEmail: () => Cookies.get('userEmail') || "",
     isFormSubmit: false,
 

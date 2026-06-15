@@ -29,20 +29,20 @@ exports.InvoiceProductListService = async (req, res) => {
 // ================= PAYMENT SUCCESS =================
 exports.PaymentSuccessInvoiceService = async (req, res) => {
     await PaymentSuccessInvoiceService(req);
-    return res.redirect(`http://localhost:5173/orders`); 
+    return res.redirect(`https://core-project-jade.vercel.app/orders`); 
 };
 
 
 // ================= PAYMENT CANCEL =================
 exports.PaymentCancelService = async (req, res) => {
     await PaymentCancelService(req);
-    return res.redirect(`http://localhost:5173/cart`); 
+    return res.redirect(`https://core-project-jade.vercel.app/cart`); 
 };
 
 // ================= PAYMENT FAIL =================
 exports.PaymentFailService = async (req, res) => {
     await PaymentFailService(req);
-    return res.redirect(`http://localhost:5173/cart`); 
+    return res.redirect(`https://core-project-jade.vercel.app/cart`); 
 };
 
 // ================= IPN =================
