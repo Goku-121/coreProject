@@ -1,0 +1,72 @@
+/* Text Animation Left */
+@keyframes slideFadeLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-50px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Text Animation Right */
+@keyframes slideFadeRight {
+    from {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Image Zoom Animation */
+@keyframes zoomFade {
+    from {
+        opacity: 0;
+        transform: scale(0.85);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Floating Effect */
+@keyframes floatAnimation {
+    0% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+/* Classes */
+
+.slider-text-animation {
+    animation: slideFadeLeft 0.8s ease;
+}
+
+.slider-image-animation {
+    animation: slideFadeRight 0.8s ease;
+}
+
+.slider-image-float {
+    animation:
+        zoomFade 0.8s ease,
+        floatAnimation 3s ease-in-out infinite;
+}.card:hover {
+  transform: translateY(-6px);
+  transition: all 0.3s ease;
+}
