@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import UserStore from '../../store/UserStroe';
 import Cookies from 'js-cookie';
 import toast from 'react-hot-toast';
@@ -8,9 +8,10 @@ const LoginForm = () => {
     let navigate = useNavigate();
     let { PasswordLoginFormData, PasswordLoginFormOnChange, LoginWithPasswordRequest, isFormSubmit } = UserStore();
 
+    useEffect(() => {
     const existingToken = localStorage.getItem('token') || Cookies.get('token');
-    if (existingToken) { navigate('/'); return null; }
-
+    if (existingToken) { navigate('/'); }
+}, []);
     const onFormSubmit = async () => {
         if (!PasswordLoginFormData.email || !PasswordLoginFormData.email.includes('@')) {
             toast.error("Please enter a valid email address");

@@ -144,15 +144,13 @@ const AdminStore = create((set) => ({
         try {
             let res = await axios.get(`/api/v1/ProductBrandList`);
             if (res.data['status'] === "success") set({ BrandList: res.data['data'] });
-        } catch {(err)}
+        } catch {}
     },
     AdminCategoryListRequest: async () => {
         try {
             let res = await axios.get(`/api/v1/ProductCategoryList`);
             if (res.data['status'] === "success") set({ CategoryList: res.data['data'] });
-        } catch {
-(err) 
-        }
+        } catch {}
     },
 
     // Orders
